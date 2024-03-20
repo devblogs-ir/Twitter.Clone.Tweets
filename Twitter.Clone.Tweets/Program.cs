@@ -1,3 +1,5 @@
+using Twitter.Clone.Tweets.Models.Contracts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -14,7 +16,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/Tweet", () =>
+app.MapGet("/Tweet", (CreateTweetRequest request, CancellationToken cancellationToken) =>
 {
 
 });
