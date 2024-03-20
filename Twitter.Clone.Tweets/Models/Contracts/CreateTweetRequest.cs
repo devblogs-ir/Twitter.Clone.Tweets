@@ -1,6 +1,3 @@
 ﻿namespace Twitter.Clone.Tweets.Models.Contracts;
 
-public class CreateTweetRequest
-{
-
-}
+public sealed record CreateTweetRequest(string text);

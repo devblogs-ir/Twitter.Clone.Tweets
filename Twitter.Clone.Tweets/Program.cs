@@ -1,6 +1,15 @@
+using Mapster;
+using MapsterMapper;
+using System.Reflection;
 using Twitter.Clone.Tweets.Models.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var config = TypeAdapterConfig.GlobalSettings;
+config.Scan(Assembly.GetExecutingAssembly());
+
+builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, ServiceMapper>();
 
 builder.Services.AddEndpointsApiExplorer();
 
