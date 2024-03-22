@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Twitter.Clone.Tweets.Extensions;
 using Twitter.Clone.Tweets.Models.Contracts;
 
@@ -19,7 +20,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/Tweet", (CreateTweetRequest request, CancellationToken cancellationToken) =>
+app.MapPost("/Tweet", ( CreateTweetRequest request, CancellationToken cancellationToken) =>
 {
 
 });
