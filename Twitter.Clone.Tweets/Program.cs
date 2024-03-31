@@ -1,12 +1,12 @@
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
-using MongoDB;
 using Twitter.Clone.Tweets.Extensions;
 using Twitter.Clone.Tweets.Models.Contracts;
 using Twitter.Clone.Tweets.Models.Domain;
 using Twitter.Clone.Tweets.Models.Setting;
 using Twitter.Clone.Tweets.Persistance;
+using Twitter.Clone.Tweets.Principles;
+using Twitter.Clone.Tweets.Principles.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,10 +18,18 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 });
 
 builder.Services.ConfigurMapster();
-
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<IUserPrinciple, UserPrinciple>(sp =>
+{
+    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+
+    var httpContext = httpContextAccessor.HttpContext;
+
+    return new UserPrinciple(httpContext?.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? string.Empty);
+});
 
 var app = builder.Build();
 
