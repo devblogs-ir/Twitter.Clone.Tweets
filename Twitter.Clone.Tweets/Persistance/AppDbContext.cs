@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using MongoDB.EntityFrameworkCore.Extensions;
 using Twitter.Clone.Tweets.Models.Domain;
