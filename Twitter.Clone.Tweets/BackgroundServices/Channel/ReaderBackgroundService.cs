@@ -1,4 +1,5 @@
 ﻿using System.Threading.Channels;
+using Twitter.Clone.Tweets.Extensions;
 using Twitter.Clone.Tweets.Models.Contracts;
 
 namespace Twitter.Clone.Tweets.BackgroundServices.Channel;
@@ -13,7 +14,7 @@ public class ReaderBackgroundService(Channel<CreateTweetContext> channel) : Back
         {
             await foreach (var item in _channel.Reader.ReadAllAsync())
             {
-                Console.WriteLine(item.IpAddress);
+                var mentions = TextScanner.GetMentions(item.Content);
             }
         }
     }
