@@ -1,18 +1,11 @@
-﻿
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 using Twitter.Clone.Tweets.Models.Contracts;
 
 namespace Twitter.Clone.Tweets.BackgroundServices.Channel;
 
-public class ReaderBackgroundService : BackgroundService
+public class ReaderBackgroundService(Channel<CreateTweetContext> channel) : BackgroundService
 {
-    private readonly Channel<CreateTweetContext> _channel;
-    public string Type;
-    public ReaderBackgroundService(Channel<CreateTweetContext> channel, string type)
-    {
-        _channel = channel;
-        Type = type;
-    }
+    private readonly Channel<CreateTweetContext> _channel = channel;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -20,6 +13,7 @@ public class ReaderBackgroundService : BackgroundService
         {
             await foreach (var item in _channel.Reader.ReadAllAsync())
             {
+                Console.WriteLine(item.IpAddress);
             }
         }
     }

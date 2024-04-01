@@ -1,5 +1,7 @@
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Channels;
+using Twitter.Clone.Tweets.BackgroundServices.Channel;
 using Twitter.Clone.Tweets.Extensions;
 using Twitter.Clone.Tweets.Models.Contracts;
 using Twitter.Clone.Tweets.Models.Domain;
@@ -41,23 +43,38 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+IHost host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
+{
+    services.AddHostedService<ReaderBackgroundService>();
+    services.AddSingleton(Channel.CreateUnbounded<CreateTweetContext>());
+}).Build();
+
+
+var channel = host.Services.GetRequiredService<Channel<CreateTweetContext>>();
+
 app.MapPost("/Tweet", async (AppDbContext appDbContext, 
     IMapper mapper, 
+    IUserPrinciple userPrinciple,
     CreateTweetRequest request, 
     CancellationToken cancellationToken) =>
 {
     var entity = mapper.Map<Tweet>(request);
     appDbContext.Set<Tweet>().Add(entity);
     await appDbContext.SaveChangesAsync();
+
+    await channel.Writer.WriteAsync(new CreateTweetContext(userPrinciple.IpAddress, entity.Content));
 });
 
 app.MapPost("/GetTweets", async (AppDbContext appDbContext, 
     IMapper mapper, 
     CancellationToken cancellationToken) =>
 {
-    var list = appDbContext.Set<Tweet>().ToList().Select
-        (c => mapper.Map<CreateTweetRequest>(c));
-    return list;
+    var tweets = appDbContext.Set<Tweet>()
+    .ToList()
+    .Select(c => mapper.Map<CreateTweetRequest>(c));
+
+
+    return tweets;
 });
 
 app.Run();
