@@ -1,6 +1,8 @@
-using MapsterMapper;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Channels;
+using MapsterMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 using Twitter.Clone.Tweets.BackgroundServices.Channel;
 using Twitter.Clone.Tweets.Extensions;
 using Twitter.Clone.Tweets.Models.Contracts;
@@ -43,7 +45,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-IHost host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
+var host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
 {
     services.AddHostedService<ReaderBackgroundService>();
     services.AddSingleton(Channel.CreateUnbounded<CreateTweetContext>());
@@ -52,10 +54,10 @@ IHost host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
 
 var channel = host.Services.GetRequiredService<Channel<CreateTweetContext>>();
 
-app.MapPost("/Tweet", async (AppDbContext appDbContext, 
-    IMapper mapper, 
+app.MapPost("/Tweet", async (AppDbContext appDbContext,
+    IMapper mapper,
     IUserPrinciple userPrinciple,
-    CreateTweetRequest request, 
+    CreateTweetRequest request,
     CancellationToken cancellationToken) =>
 {
     var entity = mapper.Map<Tweet>(request);
@@ -64,14 +66,38 @@ app.MapPost("/Tweet", async (AppDbContext appDbContext,
 
     await channel.Writer.WriteAsync(new CreateTweetContext(userPrinciple.IpAddress, entity.Content));
 });
+app.MapPost("/GetTweets", async (AppDbContext appDbContext,
+    IMapper mapper,
+    CancellationToken cancellationToken) =>
+{
+    var tweets = appDbContext.Set<Tweet>().ToList()
+        .Select(c => mapper.Map<GetTweetRequest>(c));
 
-app.MapPost("/GetTweets", async (AppDbContext appDbContext, 
-    IMapper mapper, 
+
+    return tweets;
+});
+
+app.MapPost("/GetTweetByUserId", async (Guid userId, AppDbContext appDbContext,
+    IMapper mapper,
     CancellationToken cancellationToken) =>
 {
     var tweets = appDbContext.Set<Tweet>()
-    .ToList()
-    .Select(c => mapper.Map<CreateTweetRequest>(c));
+        .Where(c => c.UserId == userId).ToList()
+        .Select(c => mapper.Map<CreateTweetRequest>(c));
+
+
+    return tweets;
+});
+
+app.MapPost("/GetTweetById", async (string id, AppDbContext appDbContext,
+    IMapper mapper,
+    CancellationToken cancellationToken) =>
+{
+    ObjectId.Parse(id);
+    var objectId = ObjectId.Parse(id);
+    var tweets = appDbContext.Set<Tweet>()
+        .Where(c => c.Id == objectId).ToList()
+        .Select(c => mapper.Map<CreateTweetRequest>(c));
 
 
     return tweets;

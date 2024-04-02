@@ -16,6 +16,7 @@ internal class AppDbContext : DbContext
     {
         modelBuilder.Entity<Tweet>(builder =>
         {
+            
             builder.ToCollection("tweets");
         });
           
