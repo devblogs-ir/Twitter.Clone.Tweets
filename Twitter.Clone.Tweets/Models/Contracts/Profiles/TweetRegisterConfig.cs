@@ -13,5 +13,10 @@ public class TweetRegisterConfig : IRegister
 
         config.ForType<Tweet, CreateTweetRequest>()
             .Map(x => x.text, z => z.Content);
+
+        config.ForType<Tweet, GetTweetRequest>()
+            .Map(x => x.text, z => z.Content)
+            .Map(c => c.userId, o => o.UserId)
+            .Map(c => c.ObjectId, o => o.Id.ToString());
     }
 }
