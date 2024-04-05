@@ -17,9 +17,9 @@ public partial class TextScanner
             mentions.Add(item.Value);
         }
 
-        return mentions;
+        return mentions; 
     }
-
+     
     [GeneratedRegex(@"(?<=@)\w+")]
     private static partial Regex MentionsRegex();
 }
