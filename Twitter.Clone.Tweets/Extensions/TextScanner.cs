@@ -2,13 +2,13 @@
 
 namespace Twitter.Clone.Tweets.Extensions;
 
-public class TextScanner
+public partial class TextScanner
 {
     public static List<string> GetMentions(string content)
     {
         var mentions = new List<string>();
 
-        var regex = new Regex(@"(?<=@)\w+");
+        var regex = MentionsRegex();
 
         var matches = regex.Matches(content);
 
@@ -19,4 +19,7 @@ public class TextScanner
 
         return mentions;
     }
+
+    [GeneratedRegex(@"(?<=@)\w+")]
+    private static partial Regex MentionsRegex();
 }
