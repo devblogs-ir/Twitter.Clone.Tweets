@@ -22,7 +22,7 @@ public partial class TextScanner
 
     public static List<string> GetHashtags(string content)
     {
-        var mentions = new List<string>();
+        var hashtags = new List<string>();
 
         var regex = HashtagsRegex();
 
@@ -30,10 +30,10 @@ public partial class TextScanner
 
         foreach (Match item in matches)
         {
-            mentions.Add(item.Value);
+            hashtags.Add(item.Value);
         }
 
-        return mentions;
+        return hashtags;
     }
 
     [GeneratedRegex(@"(?<=@)\w+")]
