@@ -20,6 +20,25 @@ public partial class TextScanner
         return mentions;
     }
 
+    public static List<string> GetHashtags(string content)
+    {
+        var mentions = new List<string>();
+
+        var regex = HashtagsRegex();
+
+        var matches = regex.Matches(content);
+
+        foreach (Match item in matches)
+        {
+            mentions.Add(item.Value);
+        }
+
+        return mentions;
+    }
+
     [GeneratedRegex(@"(?<=@)\w+")]
     private static partial Regex MentionsRegex();
+
+    [GeneratedRegex(@"(?<=#)\w+")]
+    private static partial Regex HashtagsRegex();
 }
