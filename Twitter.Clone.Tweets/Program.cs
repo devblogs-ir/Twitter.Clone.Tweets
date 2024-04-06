@@ -27,7 +27,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-//builder.Services.AddSingleton<TextScanner>();
+builder.Services.AddSingleton<TextScanner>();
 
 builder.Services.AddScoped<IUserPrinciple, UserPrinciple>(sp =>
 {
@@ -71,6 +71,7 @@ app.MapPost("/Tweet", async (AppDbContext appDbContext,
 
     await channel.Writer.WriteAsync(new CreateTweetContext(userPrinciple.IpAddress, entity.Content));
 });
+
 app.MapPost("/GetTweets", async (AppDbContext appDbContext,
     IMapper mapper,
     CancellationToken cancellationToken) =>
