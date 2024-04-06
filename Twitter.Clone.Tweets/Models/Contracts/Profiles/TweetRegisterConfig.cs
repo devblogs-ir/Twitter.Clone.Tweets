@@ -17,6 +17,6 @@ public class TweetRegisterConfig : IRegister
         config.ForType<Tweet, GetTweetRequest>()
             .Map(x => x.text, z => z.Content)
             .Map(c => c.userId, o => o.UserId)
-            .Map(c => c.ObjectId, o => o.Id.ToString());
+            .Map(c => c.objectId, o => o.Id.ToString());
     }
 }
