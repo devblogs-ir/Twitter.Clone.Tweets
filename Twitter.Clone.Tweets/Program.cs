@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using Twitter.Clone.Tweets.BackgroundServices.Channel;
 using Twitter.Clone.Tweets.Extensions;
+using Twitter.Clone.Tweets.Helpers;
 using Twitter.Clone.Tweets.Models.Contracts;
 using Twitter.Clone.Tweets.Models.Domain;
 using Twitter.Clone.Tweets.Models.Setting;
@@ -25,6 +26,8 @@ builder.Services.ConfigurMapster();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+
+//builder.Services.AddSingleton<TextScanner>();
 
 builder.Services.AddScoped<IUserPrinciple, UserPrinciple>(sp =>
 {
@@ -61,7 +64,9 @@ app.MapPost("/Tweet", async (AppDbContext appDbContext,
     CancellationToken cancellationToken) =>
 {
     var entity = mapper.Map<Tweet>(request);
+
     appDbContext.Set<Tweet>().Add(entity);
+
     await appDbContext.SaveChangesAsync();
 
     await channel.Writer.WriteAsync(new CreateTweetContext(userPrinciple.IpAddress, entity.Content));
@@ -72,7 +77,6 @@ app.MapPost("/GetTweets", async (AppDbContext appDbContext,
 {
     var tweets = appDbContext.Set<Tweet>().ToList()
         .Select(c => mapper.Map<GetTweetRequest>(c));
-
 
     return tweets;
 });
@@ -94,7 +98,9 @@ app.MapPost("/GetTweetById", async (string id, AppDbContext appDbContext,
     CancellationToken cancellationToken) =>
 {
     ObjectId.Parse(id);
+
     var objectId = ObjectId.Parse(id);
+
     var tweets = appDbContext.Set<Tweet>()
         .Where(c => c.Id == objectId).ToList()
         .Select(c => mapper.Map<CreateTweetRequest>(c));

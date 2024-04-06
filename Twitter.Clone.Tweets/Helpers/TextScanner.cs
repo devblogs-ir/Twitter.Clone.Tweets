@@ -1,10 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Twitter.Clone.Tweets.Extensions;
+namespace Twitter.Clone.Tweets.Helpers;
 
 public partial class TextScanner
 {
-    public static List<string> GetMentions(string content)
+    public List<string> GetMentions(string content)
     {
         var mentions = new List<string>();
 
@@ -20,7 +20,7 @@ public partial class TextScanner
         return mentions;
     }
 
-    public static List<string> GetHashtags(string content)
+    public List<string> GetHashtags(string content)
     {
         var hashtags = new List<string>();
 
