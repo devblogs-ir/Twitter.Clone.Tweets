@@ -13,14 +13,19 @@ public class ReaderBackgroundService(Channel<CreateTweetContext> channel, TextSc
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await foreach (var item in _channel.Reader.ReadAllAsync())
+            if (await _channel.Reader.WaitToReadAsync(stoppingToken))
             {
-                var mentions = _textScanner.GetMentions(item.Content);
+                while (_channel.Reader.TryRead(out var item))
+                {
+                    var mentions = _textScanner.GetMentions(item.Content);
 
-                var hashtags = _textScanner.GetHashtags(item.Content);
+                    var hashtags = _textScanner.GetHashtags(item.Content);
 
-
+                    //Do something with mentions and hashtags
+                }
             }
+
+            await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
         }
     }
 }
