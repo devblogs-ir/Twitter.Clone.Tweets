@@ -16,16 +16,23 @@ public class ReaderBackgroundService(Channel<CreateTweetContext> channel, TextSc
 
         try
         {
-            await foreach (var item in _channel.Reader.ReadAllAsync(stoppingToken))
+            while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Processing item with {Content}: ", item.Content);
+                if (await _channel.Reader.WaitToReadAsync(stoppingToken))
+                {
+                    while (_channel.Reader.TryRead(out var item))
+                    {
+                        var mentions = _textScanner.GetMentions(item.Content);
 
-                var mentions = _textScanner.GetMentions(item.Content);
-                var hashtags = _textScanner.GetHashtags(item.Content);
+                        var hashtags = _textScanner.GetHashtags(item.Content);
 
-                //RabbitMq
+                        //Do something with mentions and hashtags
 
-                _logger.LogInformation("processed successfully.");
+                        _logger.LogInformation("processed successfully.");
+                    }
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
         catch (Exception ex)
